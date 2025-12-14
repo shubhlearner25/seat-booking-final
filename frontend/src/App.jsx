@@ -3,10 +3,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Grid from './components/Grid';
 import useStore from './store';
+import api from "./api"; // ✅ NEW
 import { io } from 'socket.io-client';
 
 // FIX: Browser must call localhost, not Docker service name
-const socket = io('http://localhost:4000');
+const socket = io("https://seat-booking-final.onrender.com");
 
 export default function App() {
   const { setSeats } = useStore();
@@ -25,24 +26,21 @@ export default function App() {
   }
 
 useEffect(() => {
-  // Initial load
   fetchSeats();
 
-  // Seat held / released (amber / green / grey)
-  socket.on('seat:update', seat => {
+  socket.on("seat:update", seat => {
     setSeats(prev => ({
       ...prev,
       [seat._id]: seat
     }));
   });
 
-  // Seat booked (turn red) — NO FULL REFRESH
-  socket.on('seat:booked', ({ seatId }) => {
+  socket.on("seat:booked", ({ seatId }) => {
     setSeats(prev => ({
       ...prev,
       [seatId]: {
         ...prev[seatId],
-        status: 'booked',
+        status: "booked",
         heldBy: null,
         holdExpiresAt: null
       }
@@ -50,8 +48,8 @@ useEffect(() => {
   });
 
   return () => {
-    socket.off('seat:update');
-    socket.off('seat:booked');
+    socket.off("seat:update");
+    socket.off("seat:booked");
   };
 }, []);
 

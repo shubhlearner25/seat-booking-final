@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import useStore from '../store';
 import axios from 'axios';
+import api from "../api"; // ✅ NEW
 
 function seatColor(s, myId) {
   if (!s) return 'bg-gray-200';
@@ -53,7 +54,10 @@ async function handleClick(s) {
   // AVAILABLE → HOLD
   if (s.status === "available") {
     try {
-      const res = await axios.post("/api/hold", { seatId: s._id, userId: myId });
+const res = await api.post("/hold", {
+  seatId: s._id,
+  userId: myId
+});
 
       setSeats(prev => ({
         ...prev,
@@ -70,7 +74,10 @@ async function handleClick(s) {
   // HELD BY ME → RELEASE
   else if (s.status === "held" && s.heldBy === myId) {
     try {
-      const res = await axios.post("/api/release", { seatId: s._id, userId: myId });
+await api.post("/release", {
+  seatId: s._id,
+  userId: myId
+});
 
       setSeats(prev => ({
         ...prev,
@@ -106,7 +113,10 @@ async function handleClick(s) {
   if (!valid.valid) return alert(valid.message);
 
   try {
-    await axios.post("/api/book", { seatIds: selection, userId: myId });
+await api.post("/book", {
+  seatIds: selection,
+  userId: myId
+});
 
     // Get updated seats (but don't collapse UI if empty)
     const res = await axios.get("/api/seats");
@@ -166,7 +176,7 @@ async function handleClick(s) {
 
         <button
           onClick={async () => {
-            const res = await axios.get("/api/seats");
+const res = await api.get("/seats");
             const map = {};
             res.data.seats.forEach(s => (map[s._id] = s));
             setSeats(map);
