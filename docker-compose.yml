@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:6
+    restart: always
+    container_name: seat_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: seat_backend
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/seatsdb
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: seat_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
